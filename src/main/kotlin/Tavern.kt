@@ -49,12 +49,14 @@ fun visitTavern() {
 
     displayPatronBalances(patronsGold);
 
-    val departingPatrons: Set<String> = patrons.filter { patronsGold.getOrDefault(it, 0.0) < 4.0 }.toSet();
-    departingPatrons.forEach {
-        narrate("$heroName sees $it departing the tavern")
-    };
-    patrons -= departingPatrons;
-    patronsGold -= departingPatrons;
+    patrons.filter { patronsGold.getOrDefault(it, 0.0) < 4.0 }.toSet()
+        .also {
+            patrons -= it;
+            patronsGold -= it;
+        }
+        .forEach {
+            narrate("$heroName sees $it departing the tavern")
+        };
 
     narrate("There are still some patrons in the tavern");
     narrate(patrons.joinToString());
@@ -71,7 +73,7 @@ private fun getFavouritePatronMenuItem(patron: String): List<String> {
 }
 
 private fun getItemOfDay(favourites: List<String>): String {
-   val ratings = favourites.fold(mutableMapOf<String, Int>()) { acc, item ->
+    val ratings = favourites.fold(mutableMapOf<String, Int>()) { acc, item ->
         if (acc.containsKey(item)) acc[item] = acc.getValue(item) + 1 else acc[item] = 1
         acc
     }
