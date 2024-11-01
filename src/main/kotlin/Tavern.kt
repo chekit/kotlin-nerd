@@ -1,4 +1,7 @@
+import helpers.makeOrange
 import java.io.File
+import kotlin.random.Random
+import kotlin.random.nextInt
 
 private const val TAVERN_MASTER = "Taernyl";
 private const val TAVERN_NAME = "$TAVERN_MASTER's Folly"
@@ -8,52 +11,81 @@ val surnames = setOf("Ironfoot", "Fernsworth", "Baggins", "Dowstride");
 
 private val menuData = File("data/tavern-menu-items.txt")
     .readText()
-    .split("\n");
+    .split("\n")
+    .map { it.split(",").map { item -> item.trim() } };
 
-private val menuItems = List(menuData.size) { index ->
-    val (_, name, price) = menuData[index].split(",").map { it.trim() }
+private val menuItems = menuData.associate { (_, name, price) ->
     name to price.toDouble()
-}.toMap()
+};
 
-private val menuItemTypes = List(menuData.size) { index ->
-    val (type, name) = menuData[index].split(",").map { it.trim() }
+private val menuItemTypes = menuData.associate { (type, name) ->
     name to type
-}.toMap()
-
+};
 
 fun visitTavern() {
     narrate("$heroName enters $TAVERN_NAME");
     narrate("There are several items for sale");
     narrate(listTheMenu(menuData));
 
-    val patrons: MutableSet<String> = mutableSetOf();
+    val patrons: MutableSet<String> =
+        names.shuffled().zip(surnames.shuffled()) { firstName, lastName -> "$firstName $lastName" }.toMutableSet();
     val patronsGold = mutableMapOf(
         TAVERN_MASTER to 86.00,
-        heroName to 4.50
+        heroName to 4.50,
+        *patrons.map { it to 6.0 }.toTypedArray()
     )
-    while (patrons.size < 10) {
-        val patronName = "${names.random()} ${surnames.random()}";
-
-        patrons += patronName;
-        patronsGold += patronName to 6.0;
-    }
 
     narrate("$heroName sees several patrons in tavern:");
-    narrate(patrons.joinToString());
+    narrate(patrons.joinToString() + "\n");
+
+    // ? How can we make it in one line?
+    val patronFavouriteItems = patrons.flatMap { getFavouritePatronMenuItem(it) };
+
+    narrate("! The item of the day is the ${getItemOfDay(patronFavouriteItems)} !\n", ::makeOrange);
 
     repeat(3) {
         placeOrder(patrons.random(), menuItems.keys.random(), patronsGold)
     }
+
     displayPatronBalances(patronsGold);
+
+    val departingPatrons: Set<String> = patrons.filter { patronsGold.getOrDefault(it, 0.0) < 4.0 }.toSet();
+    departingPatrons.forEach {
+        narrate("$heroName sees $it departing the tavern")
+    };
+    patrons -= departingPatrons;
+    patronsGold -= departingPatrons;
+
+    narrate("There are still some patrons in the tavern");
+    narrate(patrons.joinToString());
 }
 
-fun placeOrder(patronName: String, menuItemName: String, patronsGold: MutableMap<String, Double>) {
+private fun getFavouritePatronMenuItem(patron: String): List<String> {
+    return when (patron) {
+        "Alex Ironfoot" -> menuItems.keys.filter { menuItem ->
+            menuItemTypes[menuItem]?.contains("desert") == true
+        }
+
+        else -> menuItems.keys.shuffled().take(Random.nextInt(1..2))
+    }
+}
+
+private fun getItemOfDay(favourites: List<String>): String {
+   val ratings = favourites.fold(mutableMapOf<String, Int>()) { acc, item ->
+        if (acc.containsKey(item)) acc[item] = acc.getValue(item) + 1 else acc[item] = 1
+        acc
+    }
+    val maxLikes = ratings.maxOf { it.value };
+    return ratings.filter { it.value == maxLikes }.keys.random();
+}
+
+private fun placeOrder(patronName: String, menuItemName: String, patronsGold: MutableMap<String, Double>) {
     val menuItemPrice = menuItems.getValue(menuItemName);
 
     narrate("$patronName speaks with $TAVERN_MASTER to place an order");
 
     if (patronsGold.getOrDefault(patronName, 0.0) < menuItemPrice) {
-        println("$TAVERN_MASTER says: '$patronName, you need more coin for $menuItemName");
+        println("$TAVERN_MASTER says: '$patronName, you need more coin for $menuItemName\n");
         return;
     }
 
@@ -63,42 +95,37 @@ fun placeOrder(patronName: String, menuItemName: String, patronsGold: MutableMap
         else -> "hands"
     }
     narrate("$TAVERN_MASTER $action $patronName a $menuItemName")
-    narrate("$patronName pays $TAVERN_NAME $menuItemPrice gold")
+    narrate("$patronName pays $TAVERN_NAME $menuItemPrice gold\n")
 
     patronsGold[patronName] = patronsGold.getValue(patronName).minus(menuItemPrice);
     patronsGold[TAVERN_MASTER] = patronsGold.getValue(TAVERN_MASTER).plus(menuItemPrice);
 }
 
-fun listTheMenu(items: List<String>): String {
+fun listTheMenu(items: List<List<String>>): String {
     val header = "*** Welcome to $TAVERN_NAME ***";
     val menuGap = 3;
-    var longestLine = 0;
-    val menuItemsMap = HashMap<String, MutableList<String>>();
 
-    items
-        .forEach {
-            val (_, name, price) = it.split(",");
-            val actualLength = "$name,$price".length;
+    val longestLine = items.fold(0) { acc, item ->
+        val (_, name, price) = item;
+        val currentItemLength = "$name,$price".length;
 
-            if (actualLength >= longestLine) {
-                longestLine = actualLength;
-            }
+        if (currentItemLength >= acc) currentItemLength else acc;
+    }
+
+    val menuItemsMap = items.fold(HashMap<String, MutableList<String>>()) { acc, item ->
+        val (group, name, price) = item;
+        val rest = longestLine - "$name,$price".length;
+        val dish = "$name${".".repeat(rest + menuGap)}$price"
+
+        if (acc.containsKey(group)) {
+            val gr = acc.getValue(group);
+            gr.add(dish)
+        } else {
+            acc[group] = mutableListOf(dish)
         }
 
-    items
-        .forEach {
-            val (group, name, price) = it.split(",").map { it.trim() }
-
-            val rest = longestLine - "$name,$price".length;
-            val dish = "$name${".".repeat(rest + menuGap)}$price"
-
-            if (menuItemsMap.containsKey(group)) {
-                val gr = menuItemsMap.getValue(group);
-                gr.add(dish)
-            } else {
-                menuItemsMap[group] = mutableListOf(dish)
-            }
-        }
+        acc
+    }
 
     return "\n$header\n${
         menuItemsMap.entries.joinToString(separator = "\n", transform = { it ->
@@ -111,8 +138,10 @@ fun listTheMenu(items: List<String>): String {
     }\n"
 }
 
-fun displayPatronBalances(patronsGold:  Map<String, Double>) {
+fun displayPatronBalances(patronsGold: Map<String, Double>) {
+    println("*".repeat(10));
     patronsGold.forEach { (patron, balance) ->
         println("$patron left ${"%.2f".format(balance)} gold")
     }
+    println("${"*".repeat(10)}\n");
 }

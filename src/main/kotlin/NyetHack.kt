@@ -1,3 +1,5 @@
+import helpers.makeYellow
+
 var heroName = "";
 
 fun main() {
@@ -10,7 +12,7 @@ fun main() {
     visitTavern();
 }
 
-fun makeYellow(message: String) = "\u001b[33;1m$message\u001b[0m";
+
 
 //fun makeYellow(message: String): String {
 //    return "\u001b[33;1m$message\u001b[0m"
