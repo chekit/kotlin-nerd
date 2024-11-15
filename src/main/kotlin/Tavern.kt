@@ -27,9 +27,10 @@ fun visitTavern() {
     narrate("There are several items for sale");
     narrate(listTheMenu(menuData));
 
-    val patrons: MutableSet<String> =
-        names.shuffled().zip(surnames.shuffled()) { firstName, lastName -> "$firstName $lastName" }.toMutableSet();
-    val patronsGold = mutableMapOf(
+    var patrons: Set<String> =
+        names.shuffled().zip(surnames.shuffled()) { firstName, lastName -> "$firstName $lastName" }.toSet();
+
+    var patronsGold = mapOf(
         TAVERN_MASTER to 86.00,
         heroName to 4.50,
         *patrons.map { it to 6.0 }.toTypedArray()
@@ -38,28 +39,27 @@ fun visitTavern() {
     narrate("$heroName sees several patrons in tavern:");
     narrate(patrons.joinToString() + "\n");
 
-    // ? How can we make it in one line?
     val patronFavouriteItems = patrons.flatMap { getFavouritePatronMenuItem(it) };
 
     narrate("! The item of the day is the ${getItemOfDay(patronFavouriteItems)} !\n", ::makeOrange);
 
     repeat(3) {
-        placeOrder(patrons.random(), menuItems.keys.random(), patronsGold)
+        placeOrder(patrons.random(), menuItems.keys.random(), patronsGold)?.let {
+            patronsGold = it;
+        }
     }
 
     displayPatronBalances(patronsGold);
 
-    patrons.filter { patronsGold.getOrDefault(it, 0.0) < 4.0 }.toSet()
-        .also {
-            patrons -= it;
-            patronsGold -= it;
-        }
-        .forEach {
-            narrate("$heroName sees $it departing the tavern")
-        };
+    patrons.filter { patronsGold.getOrDefault(it, 0.0) < 4.0 }.also {
+        it.forEach { narrate("$heroName sees $it departing the tavern") };
 
-    narrate("There are still some patrons in the tavern");
-    narrate(patrons.joinToString());
+        patrons = patrons.minus(it);
+        patronsGold = patronsGold.minus(it);
+
+        narrate("There are still some patrons in the tavern");
+        narrate(patrons.joinToString())
+    };
 }
 
 private fun getFavouritePatronMenuItem(patron: String): List<String> {
@@ -73,22 +73,27 @@ private fun getFavouritePatronMenuItem(patron: String): List<String> {
 }
 
 private fun getItemOfDay(favourites: List<String>): String {
-    val ratings = favourites.fold(mutableMapOf<String, Int>()) { acc, item ->
-        if (acc.containsKey(item)) acc[item] = acc.getValue(item) + 1 else acc[item] = 1
-        acc
-    }
+    val ratings = favourites
+        .fold(mutableMapOf<String, Int>()) { acc, item ->
+            if (acc.containsKey(item)) acc[item] = acc.getValue(item) + 1 else acc[item] = 1
+            acc
+        }
     val maxLikes = ratings.maxOf { it.value };
     return ratings.filter { it.value == maxLikes }.keys.random();
 }
 
-private fun placeOrder(patronName: String, menuItemName: String, patronsGold: MutableMap<String, Double>) {
+private fun placeOrder(
+    patronName: String,
+    menuItemName: String,
+    patronsGold: Map<String, Double>
+): Map<String, Double>? {
     val menuItemPrice = menuItems.getValue(menuItemName);
 
     narrate("$patronName speaks with $TAVERN_MASTER to place an order");
 
     if (patronsGold.getOrDefault(patronName, 0.0) < menuItemPrice) {
         println("$TAVERN_MASTER says: '$patronName, you need more coin for $menuItemName\n");
-        return;
+        return null;
     }
 
     val action = when (menuItemTypes[menuItemName]) {
@@ -99,8 +104,11 @@ private fun placeOrder(patronName: String, menuItemName: String, patronsGold: Mu
     narrate("$TAVERN_MASTER $action $patronName a $menuItemName")
     narrate("$patronName pays $TAVERN_NAME $menuItemPrice gold\n")
 
-    patronsGold[patronName] = patronsGold.getValue(patronName).minus(menuItemPrice);
-    patronsGold[TAVERN_MASTER] = patronsGold.getValue(TAVERN_MASTER).plus(menuItemPrice);
+    val mutablePatronsGold = patronsGold.toMutableMap();
+    mutablePatronsGold[TAVERN_MASTER] = mutablePatronsGold.getValue(TAVERN_MASTER) + menuItemPrice;
+    mutablePatronsGold[patronName] = mutablePatronsGold.getValue(patronName) - menuItemPrice;
+
+    return mutablePatronsGold.toMap();
 }
 
 fun listTheMenu(items: List<List<String>>): String {
