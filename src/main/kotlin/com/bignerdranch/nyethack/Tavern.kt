@@ -1,3 +1,5 @@
+package com.bignerdranch.nyethack
+
 import helpers.makeOrange
 import java.io.File
 import kotlin.random.Random
@@ -23,7 +25,7 @@ private val menuItemTypes = menuData.associate { (type, name) ->
 };
 
 fun visitTavern() {
-    narrate("$heroName enters $TAVERN_NAME");
+    narrate("${player.name} enters $TAVERN_NAME");
     narrate("There are several items for sale");
     narrate(listTheMenu(menuData));
 
@@ -31,11 +33,11 @@ fun visitTavern() {
         names.shuffled().zip(surnames.shuffled()) { firstName, lastName -> "$firstName $lastName" }.toMutableSet();
     val patronsGold = mutableMapOf(
         TAVERN_MASTER to 86.00,
-        heroName to 4.50,
+        player.name to 4.50,
         *patrons.map { it to 6.0 }.toTypedArray()
     )
 
-    narrate("$heroName sees several patrons in tavern:");
+    narrate("${player.name} sees several patrons in tavern:");
     narrate(patrons.joinToString() + "\n");
 
     // ? How can we make it in one line?
@@ -55,7 +57,7 @@ fun visitTavern() {
             patronsGold -= it;
         }
         .forEach {
-            narrate("$heroName sees $it departing the tavern")
+            narrate("${player.name} sees $it departing the tavern")
         };
 
     narrate("There are still some patrons in the tavern");
