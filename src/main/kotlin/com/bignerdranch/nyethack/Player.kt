@@ -2,20 +2,15 @@ package com.bignerdranch.nyethack
 
 class Player(
     initialName: String,
-    hometown: String,
-    healthPoints: Int,
-    isImmortal: Boolean
+    val hometown: String = "Neversummer",
+    var healthPoints: Int,
+    val isImmortal: Boolean
 ) {
     var name = initialName
         get() = field.replaceFirstChar { it.uppercase() }
-        private set
-//        private set(value) {
-//            field = value.trim()
-//        }
-
-    val hometown = hometown;
-    val healthPoints = healthPoints;
-    val isImmortal =  isImmortal;
+        private set(value) {
+            field = value.trim()
+        }
 
     val title: String
     get() = when {
@@ -26,6 +21,21 @@ class Player(
         name.length > 10 -> "Spacious"
         name.lowercase() == name.lowercase().reversed() -> "Palindrome"
         else -> "The Renowned Hero"
+    }
+
+    init {
+        require(healthPoints > 0) { "healthPoints must be greater than zero" };
+        require(name.isNotBlank()) { "Player must have name" };
+    }
+
+    constructor(name: String): this (
+        initialName = name,
+        healthPoints = 100,
+        isImmortal = false
+    ) {
+        if (name.equals("Jason", ignoreCase = true)) {
+            healthPoints = 500;
+        }
     }
 
     fun castFireball(numFireballs: Int = 2) {

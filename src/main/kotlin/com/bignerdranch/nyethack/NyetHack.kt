@@ -2,7 +2,7 @@ package com.bignerdranch.nyethack
 
 import helpers.makeYellow
 
-val player = Player("Jason", "Jacksonville", 100, false);
+val player = Player("Jason");
 
 fun main() {
 //    narrate("A hero enters the town of Kronstadt. What is their name?", ::makeYellow)
