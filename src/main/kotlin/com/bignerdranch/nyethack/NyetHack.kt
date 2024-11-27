@@ -1,11 +1,14 @@
 package com.bignerdranch.nyethack
 
+import helpers.makeRed
 import helpers.makeYellow
 
-val player = Player("Jason");
+lateinit var player: Player;
 
 fun main() {
-//    narrate("A hero enters the town of Kronstadt. What is their name?", ::makeYellow)
+    narrate("Welcom to NyetHack!", ::makeRed)
+    val playerName = promptHeroName();
+    player = Player(playerName);
 
 //    changeNarratorMood()
     val mortality = if (player.isImmortal) "an immortal" else "a mortal";
@@ -16,20 +19,17 @@ fun main() {
     player.castFireball();
 }
 
-
-
-//fun makeYellow(message: String): String {
-//    return "\u001b[33;1m$message\u001b[0m"
-//};
-
 private fun promptHeroName(): String {
-    val result = "Madrigal";
-//    val result = readlnOrNull();
+    narrate("A hero enters the town of Kronstadt. What is their name?", ::makeYellow)
+
+//    val input = readlnOrNull();
 //
-//    require(!result.isNullOrEmpty()) {
+//    require(!input.isNullOrEmpty()) {
 //        "The hero must have a name."
 //    }
+//
+//    return input;
 
-    println(result);
-    return result ?: "";
+    println("Madrigal");
+    return "Madrigal";
 }
