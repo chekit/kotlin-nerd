@@ -23,6 +23,18 @@ class Player(
         else -> "The Renowned Hero"
     }
 
+    val prophecy by lazy {
+        narrate("$name embarks on an arduous quest to locate a fortune teller");
+        Thread.sleep(3000);
+        narrate("The fortune teller bestows a prophecy upon $name");
+        "An interpid hero from $hometown shall some day " + listOf(
+            "form an unlikely bond between two warring factions",
+            "take possession of an otherworldly blade",
+            "bring the gift of creation back to the world",
+            "best the world-eater"
+        ).random();
+    }
+
     init {
         require(healthPoints > 0) { "healthPoints must be greater than zero" };
         require(name.isNotBlank()) { "Player must have name" };
@@ -45,5 +57,10 @@ class Player(
     fun changeName(value: String) {
         narrate("$name legally changes their name to $value")
         name = value;
+    }
+
+    fun prophesize() {
+        narrate("$name thinks about their future");
+        narrate("A fortune teller told $name, \"$prophecy\"");
     }
 }

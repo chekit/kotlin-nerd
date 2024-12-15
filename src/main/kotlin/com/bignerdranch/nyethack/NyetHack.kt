@@ -9,16 +9,20 @@ fun main() {
     narrate("Welcom to NyetHack!", ::makeRed)
     val playerName = promptHeroName();
     player = Player(playerName);
-
+    player.prophesize();
 //    changeNarratorMood()
+
+    val currentRoom = Tavern();
     val mortality = if (player.isImmortal) "an immortal" else "a mortal";
-    narrate("${player.name} of ${player.hometown}, ${player.title}, heads to the town square");
+    narrate("${player.name} of ${player.hometown}, ${player.title}, is in ${currentRoom.description()}");
     narrate("${player.name}, $mortality, has ${player.healthPoints} health points");
+    currentRoom.enterRoom()
 
-    visitTavern();
+//    visitTavern();
     player.castFireball();
-}
+    player.prophesize();
 
+}
 private fun promptHeroName(): String {
     narrate("A hero enters the town of Kronstadt. What is their name?", ::makeYellow)
 
