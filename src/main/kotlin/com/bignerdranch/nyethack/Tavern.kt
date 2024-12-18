@@ -9,20 +9,21 @@ val names = setOf("Alex", "Eli", "Mordoc", "Sophie", "Tariq", "Bilbo");
 val surnames = setOf("Ironfoot", "Fernsworth", "Baggins", "Dowstride");
 
 class Tavern : Room(TAVERN_NAME) {
-    val patrons: MutableSet<String> =
+    override val status = "busy";
+
+    private val patrons: MutableSet<String> =
         names.shuffled().zip(surnames.shuffled()) { firstName, lastName -> "$firstName $lastName" }.toMutableSet();
 
-    val patronsGold = mutableMapOf(
+    private val patronsGold = mutableMapOf(
         TAVERN_MASTER to 86.00,
         player.name to 4.50,
         *patrons.map { it to 6.0 }.toTypedArray()
     )
 
-    override val status = "busy";
     private val menu = Menu(TAVERN_NAME)
 
-    val patronFavouriteItems = patrons.flatMap { menu.getFavouriteItemByPatron(it) };
-    val itemOfTheDay = getItemOfDay(patronFavouriteItems)
+    private val patronFavouriteItems = patrons.flatMap { menu.getFavouriteItemByPatron(it) };
+    private val itemOfTheDay = getItemOfDay(patronFavouriteItems)
 
     override fun enterRoom() {
         narrate("${player.name} enters $TAVERN_NAME");
