@@ -4,7 +4,7 @@ import java.io.File
 import kotlin.random.Random
 import kotlin.random.nextInt
 
-class Menu(val tavernName: String) {
+class TavernMenu(val tavernName: String) {
     private val menuData by lazy {
         File("data/tavern-menu-items.txt")
             .readText()

@@ -20,26 +20,26 @@ class Tavern : Room(TAVERN_NAME) {
         *patrons.map { it to 6.0 }.toTypedArray()
     )
 
-    private val menu = Menu(TAVERN_NAME)
+    private val tavernMenu = TavernMenu(TAVERN_NAME)
 
-    private val patronFavouriteItems = patrons.flatMap { menu.getFavouriteItemByPatron(it) };
+    private val patronFavouriteItems = patrons.flatMap { tavernMenu.getFavouriteItemByPatron(it) };
     private val itemOfTheDay = getItemOfDay(patronFavouriteItems)
 
     override fun enterRoom() {
         narrate("${player.name} enters $TAVERN_NAME");
         narrate("There are several items for sale");
-        narrate(menu.listTheMenu());
+        narrate(tavernMenu.listTheMenu());
 
         narrate("! The item of the day is the $itemOfTheDay !\n", ::makeOrange);
 
         narrate("${player.name} sees several patrons in tavern:");
         narrate(patrons.joinToString() + "\n");
 
-        placeOrder(patrons.random(), menu.menuItems.keys.random())
+        placeOrder(patrons.random(), tavernMenu.menuItems.keys.random())
     }
 
     private fun placeOrder(patronName: String, menuItemName: String) {
-        val menuItemPrice = menu.menuItems.getValue(menuItemName);
+        val menuItemPrice = tavernMenu.menuItems.getValue(menuItemName);
 
         narrate("$patronName speaks with $TAVERN_MASTER to place an order");
 
@@ -48,7 +48,7 @@ class Tavern : Room(TAVERN_NAME) {
             return;
         }
 
-        val action = when (menu.menuItemTypes[menuItemName]) {
+        val action = when (tavernMenu.menuItemTypes[menuItemName]) {
             "shandy", "elixir" -> "pours"
             "meal" -> "serves"
             else -> "hands"
