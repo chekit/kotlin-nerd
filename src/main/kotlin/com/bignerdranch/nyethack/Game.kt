@@ -40,32 +40,6 @@ object Game {
         }
     }
 
-    fun fight() {
-        val monsterRoom = currentRoom as? MonsterRoom;
-        val currentMonster = monsterRoom?.monster;
-
-        if (currentMonster == null) {
-            narrate("There's nothing to fight here");
-            return;
-        }
-
-        while (player.healthPoints > 0 && currentMonster.healthPoints > 0) {
-            player.attack(currentMonster);
-            if (currentMonster.healthPoints > 0) {
-                currentMonster.attack(player);
-            }
-            Thread.sleep(1000);
-        }
-
-        if (player.healthPoints <= 0 ) {
-            narrate("You have been defeated! Thanks for playing");
-            exitProcess(0)
-        } else {
-            narrate("${currentMonster.name} has been defeated");
-            monsterRoom.monster = null;
-        }
-    }
-
     private class GameInput(arg: String?) {
         private val input = arg ?: "";
         val command = input.split(" ")[0];
@@ -111,6 +85,32 @@ object Game {
             else -> {
                 narrate("I'm not sure what you're trying to do")
             }
+        }
+    }
+
+    private fun fight() {
+        val monsterRoom = currentRoom as? MonsterRoom;
+        val currentMonster = monsterRoom?.monster;
+
+        if (currentMonster == null) {
+            narrate("There's nothing to fight here");
+            return;
+        }
+
+        while (player.healthPoints > 0 && currentMonster.healthPoints > 0) {
+            player.attack(currentMonster);
+            if (currentMonster.healthPoints > 0) {
+                currentMonster.attack(player);
+            }
+            Thread.sleep(1000);
+        }
+
+        if (player.healthPoints <= 0 ) {
+            narrate("You have been defeated! Thanks for playing");
+            exitProcess(0)
+        } else {
+            narrate("${currentMonster.name} has been defeated");
+            monsterRoom.monster = null;
         }
     }
 
