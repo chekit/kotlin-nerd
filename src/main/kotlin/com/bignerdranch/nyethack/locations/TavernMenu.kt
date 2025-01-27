@@ -1,4 +1,4 @@
-package com.bignerdranch.nyethack
+package com.bignerdranch.nyethack.locations
 
 import java.io.File
 import kotlin.random.Random

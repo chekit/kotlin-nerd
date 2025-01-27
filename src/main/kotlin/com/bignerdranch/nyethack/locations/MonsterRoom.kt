@@ -1,4 +1,8 @@
-package com.bignerdranch.nyethack
+package com.bignerdranch.nyethack.locations
+
+import com.bignerdranch.nyethack.Goblin
+import com.bignerdranch.nyethack.Monster
+import com.bignerdranch.nyethack.narrate
 
 class MonsterRoom(
     name: String,

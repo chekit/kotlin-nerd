@@ -1,7 +1,7 @@
 package helpers
 
 import com.bignerdranch.nyethack.Coordinate
-import com.bignerdranch.nyethack.Room
+import com.bignerdranch.nyethack.locations.Room
 
 fun locatePlayerPosition(worldMap: List<List<Room>>, currentPosition: Coordinate) {
     worldMap.forEachIndexed() { indexRow, row ->

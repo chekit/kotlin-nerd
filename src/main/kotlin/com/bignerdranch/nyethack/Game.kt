@@ -1,14 +1,22 @@
 package com.bignerdranch.nyethack
 
+import com.bignerdranch.nyethack.locations.MonsterRoom
+import com.bignerdranch.nyethack.locations.Room
+import com.bignerdranch.nyethack.locations.Tavern
+import com.bignerdranch.nyethack.locations.TownSquare
 import helpers.locatePlayerPosition
 import helpers.makeRed
 import helpers.makeYellow
-import kotlin.reflect.typeOf
 import kotlin.system.exitProcess
 
 object Game {
     private val worldMap = listOf<List<Room>>(
-        listOf(Room("Long road"), MonsterRoom("Mysterious Forest", Werewolf()), Room("Long road"), MonsterRoom("Mystery village"), ),
+        listOf(
+            Room("Long road"),
+            MonsterRoom("Mysterious Forest", Werewolf()),
+            Room("Long road"),
+            MonsterRoom("Mystery village"),
+        ),
         listOf(TownSquare(), Tavern(), Room("Back Room"), TownSquare(), MonsterRoom("Knights castle", Dragon())),
         listOf(MonsterRoom("A Long Corridor"), Room("A Generic Room")),
         listOf(MonsterRoom("The Dungeon"), MonsterRoom("The Dungeon prison", Draugr())),
@@ -37,6 +45,17 @@ object Game {
 
             print("> Enter your command: ");
             GameInput(readlnOrNull()).processCommand()
+        }
+    }
+
+    fun takeLoot() {
+        val loot = currentRoom.lootBox.takeLoot();
+
+        if (loot == null) {
+            narrate("${player.name} approaches the loot box, but it is empty.")
+        } else {
+            narrate("${player.name} now has a ${loot.name}")
+            player.inventory += loot;
         }
     }
 
@@ -77,6 +96,24 @@ object Game {
 
             "fight" -> fight()
 
+            "take" -> {
+                if (argument.equals("loot", ignoreCase = true)) {
+                    takeLoot()
+                } else {
+                    narrate("I don't know what you're trying to take")
+                }
+                printInfo = false;
+            }
+
+            "sell" -> {
+                if (argument.equals("loot", ignoreCase = true)) {
+                    sellLoot();
+                } else {
+                    narrate("I don't know what you're trying to sell")
+                }
+                printInfo = false;
+            }
+
             "quit", "exit" -> {
                 narrate("=== The game will be closed! ===", ::makeRed);
                 quitGame = true
@@ -105,7 +142,7 @@ object Game {
             Thread.sleep(1000);
         }
 
-        if (player.healthPoints <= 0 ) {
+        if (player.healthPoints <= 0) {
             narrate("You have been defeated! Thanks for playing");
             exitProcess(0)
         } else {
@@ -124,6 +161,29 @@ object Game {
             currentRoom = newRoom;
         } else {
             narrate("You can't move ${direction.name}");
+        }
+    }
+
+    private fun sellLoot() {
+        when (val currentRoom = currentRoom) {
+            is TownSquare -> {
+                if (player.inventory.size == 0) {
+                    narrate("You have nothing to sell.", ::makeYellow)
+                    return
+                }
+
+                player.inventory.forEach {
+                    if (it is Sellable) {
+                        val sellPrice = currentRoom.sellItem(it)
+                        narrate("Sold ${it.name} for $sellPrice gold")
+                        player.gold += sellPrice;
+                    } else {
+                        narrate("Your item can't be sold", ::makeRed)
+                    }
+                }
+            }
+
+            else -> narrate("You can't sell anything here", ::makeRed)
         }
     }
 }

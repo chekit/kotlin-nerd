@@ -1,5 +1,6 @@
-package com.bignerdranch.nyethack
+package com.bignerdranch.nyethack.locations
 
+import com.bignerdranch.nyethack.*
 import helpers.makeOrange
 
 private const val TAVERN_MASTER = "Taernyl";
@@ -10,6 +11,7 @@ val surnames = setOf("Ironfoot", "Fernsworth", "Baggins", "Dowstride");
 
 class Tavern : Room(TAVERN_NAME) {
     override val status = "busy";
+    override val lootBox: LootBox<Key> = LootBox(Key("key to Nogartse's evil lair"));
 
     private val patrons: MutableSet<String> =
         names.shuffled().zip(surnames.shuffled()) { firstName, lastName -> "$firstName $lastName" }.toMutableSet();
