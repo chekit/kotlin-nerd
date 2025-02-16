@@ -6,7 +6,7 @@ import helpers.makeYellow
 lateinit var player: Player;
 
 fun main() {
-    narrate("=== Welcom to NyetHack! ===", ::makeRed)
+    narrate("=== Welcom to NyetHack ===".frame(), ::makeRed)
 
     val playerName = promptHeroName();
     player = Player(playerName);

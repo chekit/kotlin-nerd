@@ -1,3 +1,5 @@
+package helpers
+
 val LeetAlphabet: Map<String, String> = mapOf(
     "A" to "4",
     "B" to "8",

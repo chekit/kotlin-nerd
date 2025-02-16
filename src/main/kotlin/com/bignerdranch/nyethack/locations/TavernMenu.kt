@@ -1,5 +1,6 @@
 package com.bignerdranch.nyethack.locations
 
+import com.bignerdranch.nyethack.frame
 import java.io.File
 import kotlin.random.Random
 import kotlin.random.nextInt
@@ -22,7 +23,7 @@ class TavernMenu(val tavernName: String) {
 
     fun listTheMenu(): String {
         val items: List<List<String>> = menuData;
-        val header = "*** Welcome to $tavernName ***";
+        val header = "*** Welcome to $tavernName ***".frame();
         val menuGap = 3;
 
         val longestLine = items.fold(0) { acc, item ->

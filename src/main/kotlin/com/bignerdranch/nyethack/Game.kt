@@ -27,7 +27,7 @@ object Game {
     private var printInfo = true;
 
     init {
-        narrate("Welcome, adventurer!")
+        narrate("Welcome, adventurer".frame())
 
         val mortality = if (player.isImmortal) "an immortal" else "a mortal";
         narrate("${player.name}, $mortality, has ${player.healthPoints} health points");
@@ -75,7 +75,7 @@ object Game {
                 }
             }
 
-            "map" -> {
+            "map", "ls" -> {
                 locatePlayerPosition(worldMap, currentPosition);
                 printInfo = false;
             }
