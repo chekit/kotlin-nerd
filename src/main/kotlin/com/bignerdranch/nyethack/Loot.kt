@@ -11,8 +11,6 @@ interface Sellable {
     val value: Int;
 }
 
-abstract class Hat : Loot(), Sellable
-
 class LootBox<out T : Loot>(private val contents: T) {
     var isOpen = false
         private set
@@ -43,6 +41,7 @@ class DropOffBox<in T> where T : Loot, T : Sellable {
     }
 }
 
+abstract class Hat : Loot(), Sellable
 data class Fedora(override val name: String, override val value: Int) : Hat()
 data class Fez(override val name: String, override val value: Int) : Hat()
 

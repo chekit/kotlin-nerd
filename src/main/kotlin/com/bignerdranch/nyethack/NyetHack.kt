@@ -10,7 +10,7 @@ fun main() {
 
     val playerName = promptHeroName();
     player = Player(playerName);
-//    changeNarratorMood();
+    changeNarratorMood();
 
     Game.play();
 }
@@ -18,14 +18,11 @@ fun main() {
 private fun promptHeroName(): String {
     narrate("A hero enters the town of Kronstadt. What is their name?", ::makeYellow)
 
-//    val input = readlnOrNull();
-//
-//    require(!input.isNullOrEmpty()) {
-//        "The hero must have a name."
-//    }
-//
-//    return input;
+    val input = readlnOrNull();
 
-    println("Madrigal");
-    return "Madrigal";
+    require(!input.isNullOrEmpty()) {
+        "The hero must have a name."
+    }
+
+    return input;
 }

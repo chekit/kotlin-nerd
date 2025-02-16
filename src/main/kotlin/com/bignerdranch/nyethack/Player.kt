@@ -17,15 +17,15 @@ class Player(
     override val diceSides = 4;
 
     val title: String
-    get() = when {
-        name.count { it.lowercase() in "aeiou" } > 4 -> "The Master of Vowel"
-        name.all { it.isDigit() } -> "The Identifiable"
-        name.none { it.isLetter() } -> "The Witness Protection Member"
-        name.all { it.isUpperCase() } -> "Legendary"
-        name.length > 10 -> "Spacious"
-        name.lowercase() == name.lowercase().reversed() -> "Palindrome"
-        else -> "The Renowned Hero"
-    }
+        get() = when {
+            name.numVowels > 4 -> "The Master of Vowel"
+            name.all { it.isDigit() } -> "The Identifiable"
+            name.none { it.isLetter() } -> "The Witness Protection Member"
+            name.all { it.isUpperCase() } -> "Legendary"
+            name.length > 10 -> "Spacious"
+            name.lowercase() == name.lowercase().reversed() -> "Palindrome"
+            else -> "The Renowned Hero"
+        }
 
     val prophecy by lazy {
         narrate("$name embarks on an arduous quest to locate a fortune teller");
@@ -47,7 +47,7 @@ class Player(
         require(name.isNotBlank()) { "Player must have name" };
     }
 
-    constructor(name: String): this (
+    constructor(name: String) : this(
         initialName = name,
         healthPoints = 100,
         isImmortal = false
@@ -72,8 +72,8 @@ class Player(
     }
 
     override fun takeDamage(damage: Int) {
-       if (!isImmortal) {
-           healthPoints -= damage;
-       }
+        if (!isImmortal) {
+            healthPoints -= damage;
+        }
     }
 }

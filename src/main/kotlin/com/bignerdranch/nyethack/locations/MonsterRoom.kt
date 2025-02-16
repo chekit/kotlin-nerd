@@ -19,3 +19,9 @@ class MonsterRoom(
         }
     }
 }
+
+inline fun MonsterRoom.configurePitGoblin(block: MonsterRoom.(Goblin) -> Goblin): MonsterRoom {
+    val goblin = block(Goblin("Pit Goblin", description = "An Evil Pit Goblin"))
+    monster = goblin
+    return this
+}
